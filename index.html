@@ -3,181 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Las Vagas · Acesso</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
+<title>Las Vagas</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:wght@600;700&family=Manrope:wght@400;600;700&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<style>
-:root{--bg:#FFF9F7;--surface:#fff;--blush:#F8EDEF;--line:#EADCE0;--ink:#40343A;--ink2:#7A6970;--plum:#69405D;--rose:#B86F87;--gold:#C9A66B;--ok:#2F7A57;--okbg:#E4F1E9;--crit:#B0303F;--critbg:#F9E1E4;--warn:#96660F;--warnbg:#FBF0DA}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Manrope,system-ui,sans-serif;padding:0 16px 40px}
-h1,h2{font-family:Cormorant,Georgia,serif;color:var(--plum);margin:0;line-height:1.1}
-h1{font-size:34px}h2{font-size:24px}
-.wrap{max-width:980px;margin:0 auto}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px}
-.login{max-width:380px;margin:12vh auto 0}
-.brand{font-family:Cormorant,Georgia,serif;font-size:40px;font-weight:700;color:var(--plum);text-align:center}
-.sub{text-align:center;color:var(--ink2);font-size:13px;margin-bottom:20px;letter-spacing:.08em;text-transform:uppercase}
-label{display:block;font-size:12px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;margin:14px 0 6px}
-input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);font:inherit;color:inherit}
-input:focus{outline:2px solid var(--rose);outline-offset:1px}
-button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--surface);padding:9px 14px;font-weight:700;color:var(--ink)}
-button.primary{background:var(--plum);border-color:var(--plum);color:#fff;width:100%;padding:12px;margin-top:18px}
-button:disabled{opacity:.5;cursor:default}
-.msg{margin-top:14px;font-size:13px;border-radius:10px;padding:10px 12px}
-.msg.err{background:var(--critbg);color:var(--crit)}.msg.ok{background:var(--okbg);color:var(--ok)}.msg.warn{background:var(--warnbg);color:var(--warn)}
-.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:18px 0;border-bottom:1px solid var(--line);margin-bottom:22px}
-.top .who{font-size:13px;color:var(--ink2)}
-.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700;background:var(--blush);color:var(--plum)}
-.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--rose);font-weight:700}
-.grid{display:grid;gap:16px;margin-top:16px}
-.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
-table{border-collapse:collapse;width:100%;font-size:14px}
-th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink2);text-align:left;padding:10px 12px;background:var(--blush)}
-td{padding:9px 12px;border-top:1px solid var(--line)}
-.muted{color:var(--ink2)}.small{font-size:13px}
-.empty{padding:22px;text-align:center;color:var(--ink2)}
-.row{display:flex;gap:8px;flex-wrap:wrap}
-</style>
+<style>body{margin:0;background:#FFF9F7;color:#40343A;font:15px/1.5 Manrope,system-ui,sans-serif}#app{padding:40px 16px;text-align:center;color:#7A6970}</style>
 </head>
 <body>
-<div class="wrap" id="app"></div>
+<div id="app">Carregando Las Vagas…</div>
 <script>
-const SUPABASE_URL = 'https://gzbnjldzfmruwgbydcis.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_bBQvbHJlDQ_PauuZeOTwKg_e8gLetuV';
-const DOMINIO = '@lasvagas.local';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-const app = document.getElementById('app');
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const PAPEL = { gestor: 'Gestão', analista: 'Análise', operador: 'Operador' };
-let perfil = null;
-
-function erroAmigavel(e) {
-  const m = (e && (e.message || e.msg)) || String(e);
-  if (/Invalid login credentials/i.test(m)) return 'Usuário ou senha incorretos.';
-  if (/schema must be one of|Invalid schema|PGRST106/i.test(m)) return 'Os ambientes ainda não estão liberados na API do Supabase. Siga o passo "Liberar os ambientes" das instruções.';
-  if (/Password should be at least/i.test(m)) return 'A nova senha precisa ter pelo menos 6 caracteres.';
-  if (/Failed to fetch/i.test(m)) return 'Sem conexão com o servidor. Verifique a internet.';
-  return m;
-}
-
-function telaLogin(msg) {
-  app.innerHTML = `
-  <div class="login">
-    <div class="brand">Las Vagas</div>
-    <div class="sub">Conferência de Caixa</div>
-    <form class="card" id="fLogin">
-      <label for="u">Usuário</label><input id="u" autocomplete="username" autocapitalize="none" required>
-      <label for="s">Senha</label><input id="s" type="password" autocomplete="current-password" required>
-      <button class="primary" id="bEntrar">Entrar</button>
-      ${msg ? `<div class="msg err">${esc(msg)}</div>` : ''}
-    </form>
-  </div>`;
-  document.getElementById('fLogin').onsubmit = async ev => {
-    ev.preventDefault();
-    const b = document.getElementById('bEntrar'); b.disabled = true; b.textContent = 'Entrando…';
-    const usuario = document.getElementById('u').value.trim().toLowerCase();
-    const { error } = await sb.auth.signInWithPassword({ email: usuario + DOMINIO, password: document.getElementById('s').value });
-    if (error) return telaLogin(erroAmigavel(error));
-    entrar();
-  };
-}
-
-async function entrar() {
-  const { data, error } = await sb.schema('acesso').rpc('meu_perfil');
-  if (error) { app.innerHTML = `<div class="login card"><div class="msg err">${esc(erroAmigavel(error))}</div><button class="primary" onclick="sair()">Voltar</button></div>`; return; }
-  perfil = data && data[0];
-  if (!perfil) { await sb.auth.signOut(); return telaLogin('Usuário sem perfil ativo. Fale com a gestão.'); }
-  if (perfil.deve_trocar_senha) return telaTrocaSenha();
-  ambiente();
-}
-
-function telaTrocaSenha(msg) {
-  app.innerHTML = `
-  <div class="login">
-    <div class="brand">Olá, ${esc(perfil.nome)}</div>
-    <div class="sub">Primeiro acesso</div>
-    <form class="card" id="fSenha">
-      <p class="small muted" style="margin:0">Por segurança, crie sua própria senha antes de continuar. Use pelo menos 6 caracteres.</p>
-      <label for="n1">Nova senha</label><input id="n1" type="password" autocomplete="new-password" minlength="6" required>
-      <label for="n2">Repita a nova senha</label><input id="n2" type="password" autocomplete="new-password" minlength="6" required>
-      <button class="primary" id="bSalvar">Salvar e entrar</button>
-      ${msg ? `<div class="msg err">${esc(msg)}</div>` : ''}
-    </form>
-  </div>`;
-  document.getElementById('fSenha').onsubmit = async ev => {
-    ev.preventDefault();
-    const a = document.getElementById('n1').value, b = document.getElementById('n2').value;
-    if (a !== b) return telaTrocaSenha('As duas senhas não são iguais.');
-    if (a.length < 6) return telaTrocaSenha('A nova senha precisa ter pelo menos 6 caracteres.');
-    if (a === '1234' || a === '123456') return telaTrocaSenha('Escolha uma senha diferente da padrão.');
-    const { error } = await sb.auth.updateUser({ password: a });
-    if (error) return telaTrocaSenha(erroAmigavel(error));
-    await sb.schema('acesso').rpc('confirmar_troca_senha');
-    perfil.deve_trocar_senha = false;
-    ambiente('Senha criada. Use ela nos próximos acessos.');
-  };
-}
-
-function topo() {
-  return `<div class="top"><div><div class="eyebrow">Ambiente ${PAPEL[perfil.papel]}</div><h1>Las Vagas</h1></div>
-    <div class="row" style="align-items:center"><span class="who">${esc(perfil.nome)} · <span class="pill">${esc(perfil.usuario)}</span></span><button onclick="sair()">Sair</button></div></div>`;
-}
-function tabela(cols, rows, vazio) {
-  if (!rows || !rows.length) return `<div class="tbl"><div class="empty">${esc(vazio)}</div></div>`;
-  return `<div class="tbl"><table><thead><tr>${cols.map(c => `<th>${esc(c[1])}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${cols.map(c => `<td>${c[2] ? c[2](r) : esc(r[c[0]])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
-}
-const dataBR = d => d ? new Date(d + (d.length === 10 ? 'T12:00:00' : '')).toLocaleDateString('pt-BR') : '';
-
-async function ambiente(aviso) {
-  const msg = aviso ? `<div class="msg ok">${esc(aviso)}</div>` : '';
-  if (perfil.papel === 'gestor') {
-    const { data: us, error } = await sb.schema('gestao').from('usuarios').select('*').order('papel').order('usuario');
-    app.innerHTML = topo() + msg + `
-      <div class="grid">
-        <div class="card"><h2>Usuários</h2><p class="small muted">"Zerar senha" volta a senha para 1234 e pede uma nova no próximo acesso.</p>
-        ${error ? `<div class="msg err">${esc(erroAmigavel(error))}</div>` : tabela([
-          ['usuario','Usuário'],['nome','Nome'],['papel','Perfil', r => PAPEL[r.papel]],
-          ['ativo','Situação', r => r.ativo ? 'Ativo' : 'Desativado'],
-          ['deve_trocar_senha','Senha', r => r.deve_trocar_senha ? '<span class="pill">padrão (1234)</span>' : 'própria'],
-          ['x','', r => r.usuario === perfil.usuario ? '' : `<div class="row"><button onclick="zerar('${esc(r.usuario)}')">Zerar senha</button><button onclick="ativar('${esc(r.usuario)}', ${!r.ativo})">${r.ativo ? 'Desativar' : 'Ativar'}</button></div>`]
-        ], us, 'Nenhum usuário')}</div>
-        <div class="card"><h2>Próximas etapas</h2><p class="small muted" style="margin:6px 0 0">Importação JUMP/Stone, caixas, faturamento mensal, ficha do colaborador e padrões de alerta entram neste ambiente nas próximas fases.</p></div>
-      </div>`;
-  } else if (perfil.papel === 'analista') {
-    const [{ data: ops }, { data: cxs }] = await Promise.all([
-      sb.schema('analise').from('operadores').select('*').order('nome'),
-      sb.schema('analise').from('caixas').select('*').order('competencia', { ascending: false }).limit(50)]);
-    app.innerHTML = topo() + msg + `
-      <div class="grid">
-        <div class="card"><h2>Caixas</h2><p class="small muted">Os caixas aparecem aqui depois da importação do JUMP e da Stone (próxima fase).</p>
-          ${tabela([['competencia','Competência', r => dataBR(r.competencia)],['operador','Operador'],['patio','Pátio'],['status','Situação']], cxs, 'Nenhum caixa ainda')}</div>
-        <div class="card"><h2>Operadores</h2>${tabela([['nome','Nome'],['nomes_jump','Nome no JUMP', r => esc((r.nomes_jump || []).join(', '))]], ops, 'Nenhum operador')}</div>
-      </div>`;
-  } else {
-    const [{ data: cxs }, { data: fbs }] = await Promise.all([
-      sb.schema('operador').from('meus_caixas').select('*').order('competencia', { ascending: false }).limit(30),
-      sb.schema('operador').from('meus_feedbacks').select('*').order('dado_em', { ascending: false })]);
-    app.innerHTML = topo() + msg + `
-      <div class="grid">
-        <div class="card"><h2>Meus caixas</h2><p class="small muted">Aqui você vai lançar o seu caixa do turno, sem papel (próxima fase).</p>
-          ${tabela([['competencia','Dia', r => dataBR(r.competencia)],['turno','Turno'],['patio','Pátio'],['status','Situação']], cxs, 'Nenhum caixa ainda')}</div>
-        <div class="card"><h2>Meus feedbacks</h2>${tabela([['dado_em','Data', r => dataBR(r.dado_em)],['tipo','Tipo'],['descricao','Mensagem']], fbs, 'Nenhum feedback')}</div>
-      </div>`;
-  }
-}
-
-async function zerar(u) {
-  const { error } = await sb.schema('gestao').rpc('redefinir_senha', { p_usuario: u });
-  ambiente(error ? null : `Senha de ${u} voltou para 1234.`); if (error) alert(erroAmigavel(error));
-}
-async function ativar(u, v) {
-  const { error } = await sb.schema('gestao').rpc('ativar_usuario', { p_usuario: u, p_ativo: v });
-  ambiente(error ? null : `${u} ${v ? 'ativado' : 'desativado'}.`); if (error) alert(erroAmigavel(error));
-}
-async function sair() { await sb.auth.signOut(); perfil = null; telaLogin(); }
-
-sb.auth.getSession().then(({ data }) => data.session ? entrar() : telaLogin());
+// Este arquivo só conecta ao Supabase e carrega o sistema, que fica guardado no banco.
+window.sb = supabase.createClient('https://gzbnjldzfmruwgbydcis.supabase.co', 'sb_publishable_bBQvbHJlDQ_PauuZeOTwKg_e8gLetuV');
+window.sb.schema('acesso').rpc('app').then(function (r) {
+  if (r.error || !r.data) { document.getElementById('app').textContent = 'Não foi possível carregar o sistema. Verifique a internet e recarregue a página.'; return; }
+  var s = document.createElement('script'); s.textContent = r.data; document.body.appendChild(s);
+});
 </script>
 </body>
 </html>
