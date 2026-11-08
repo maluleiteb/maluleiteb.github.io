@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; connect-src https://lkeiaaaxoptqangxbhce.supabase.co wss://lkeiaaaxoptqangxbhce.supabase.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; frame-ancestors 'none'; base-uri 'none'; form-action 'none'">
+<title>Financeiro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:wght@600;700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+<div id="app" style="font-family:Manrope,sans-serif;padding:40px;text-align:center;color:#5B6472">Carregando…</div>
+<script>
+window.sb = supabase.createClient('https://lkeiaaaxoptqangxbhce.supabase.co', 'sb_publishable_JR1kdvtTWG8EonM6uB919g__Ruai2-W', {auth: {persistSession: true, storage: window.sessionStorage}});
+window.sb.rpc('app_financeiro').then(function (r) {
+  if (r.error || !r.data) { document.getElementById('app').textContent = 'Não foi possível carregar.'; return; }
+  var s = document.createElement('script'); s.textContent = r.data; document.body.appendChild(s);
+});
+</script>
+</body>
+</html>
