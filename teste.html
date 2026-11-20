@@ -7,24 +7,24 @@
 <title>Las Vagas · teste</title>
 <link rel="icon" href="assets/favicon-64.png">
 <link rel="apple-touch-icon" href="assets/icone-180.png">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:wght@600;700&family=Manrope:wght@400;600;700&family=Anton&family=Inter:wght@400;500;600;700;800;900&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <style>
-body{margin:0;background:#141414;color:#fff;font:15px/1.5 Inter,system-ui,sans-serif}
-#app{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;text-align:center}
-#app img{width:180px;height:180px;animation:lvc .9s cubic-bezier(.2,.9,.3,1.2) both}
-#app span{font-family:Anton,Impact,sans-serif;letter-spacing:3px;font-size:18px;opacity:.9}
+body{margin:0}
+#lvSplash{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;text-align:center}
+#lvSplash img{width:180px;height:180px;animation:lvc .9s cubic-bezier(.2,.9,.3,1.2) both}
+#lvSplash span{font-family:Anton,Impact,sans-serif;letter-spacing:3px;font-size:18px;opacity:.9}
 @keyframes lvc{0%{transform:scale(2.2) rotate(-28deg);opacity:0}55%{transform:scale(.92) rotate(4deg);opacity:1}100%{transform:none}}
 @media (prefers-reduced-motion:reduce){#app img{animation:none}}
 </style>
 </head>
 <body>
-<div id="app"><img src="assets/logo-las-vagas.png" alt="Las Vagas Estacionamento"><span>VERSÃO DE TESTE</span></div>
+<div id="app"><div id="lvSplash" style="background:#141414;color:#fff;margin:0 -16px"><img src="assets/logo-las-vagas.png" alt="Las Vagas Estacionamento"><span>VERSÃO DE TESTE</span></div></div>
 <script>
 window.LV_LOGO = 'assets/logo-las-vagas.png';
 window.sb = supabase.createClient('https://gzbnjldzfmruwgbydcis.supabase.co', 'sb_publishable_bBQvbHJlDQ_PauuZeOTwKg_e8gLetuV');
 window.sb.schema('acesso').rpc('app_teste').then(function (r) {
-  if (r.error || !r.data) { document.getElementById('app').innerHTML = '<p>Não foi possível carregar a versão de teste.</p>'; return; }
+  if (r.error || !r.data) { document.getElementById('app').textContent = 'Não foi possível carregar a versão de teste.'; return; }
   var s = document.createElement('script'); s.textContent = r.data; document.body.appendChild(s);
 });
 </script>
